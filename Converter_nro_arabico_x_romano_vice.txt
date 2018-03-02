@@ -1,0 +1,154 @@
+*&---------------------------------------------------------------------*
+*& Report  Z_85USER52_01
+*&
+*&---------------------------------------------------------------------*
+*&
+*&
+*&---------------------------------------------------------------------*
+
+REPORT  Z_85USER52_01.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE text-001.
+PARAMETERS: p_num(10) type c.
+PARAMETERS: rb_conv1 type qppnp-timr1 RADIOBUTTON GROUP rb1 DEFAULT 'X' USER-COMMAND flag,
+            rb_conv2 type qppnp-timr1 RADIOBUTTON GROUP rb1.
+SELECTION-SCREEN end of BLOCK b1.
+
+data: vl_number(10) type c,
+      vl_out(10) type c.
+
+START-OF-SELECTION.
+
+  "verifica qual opcao foi selecionado.
+  IF rb_conv1 eq 'X'. "arabico x romano
+
+    vl_number = p_num.
+    IF vl_number(1) ca '0123456789'.
+
+      WHILE ( ( vl_number / 1000 ) >= 1 ).
+        CONCATENATE vl_out 'M' INTO VL_OUT.
+        vl_number = vl_number - 1000.
+      ENDWHILE.
+      if ( ( vl_number / 900 ) >= 1 ).
+        CONCATENATE vl_out 'CM' INTO VL_OUT.
+        vl_number = vl_number - 900.
+      ENDIF.
+
+      if ( ( vl_number / 500 ) >= 1 ).
+        CONCATENATE vl_out 'D' INTO VL_OUT.
+        vl_number = vl_number - 500.
+      ENDIF.
+      if ( ( vl_number / 400 ) >= 1 ).
+        CONCATENATE vl_out 'CD' INTO VL_OUT.
+        vl_number = vl_number - 400.
+      ENDIF.
+
+      WHILE ( ( vl_number / 100 ) >= 1 ).
+        CONCATENATE vl_out 'C' INTO VL_OUT.
+        vl_number = vl_number - 100.
+      ENDWHILE.
+      if ( ( vl_number / 90 ) >= 1 ).
+        CONCATENATE vl_out 'XC' INTO VL_OUT.
+        vl_number = vl_number - 90.
+      ENDIF.
+      if ( ( vl_number / 50 ) >= 1 ).
+        CONCATENATE vl_out 'L' INTO VL_OUT.
+        vl_number = vl_number - 50.
+      ENDIF.
+      if ( ( vl_number / 40 ) >= 1 ).
+        CONCATENATE vl_out 'XL' INTO VL_OUT.
+        vl_number = vl_number - 40.
+      ENDIF.
+
+      while ( ( vl_number / 10 ) >= 1 ).
+        CONCATENATE vl_out 'X' INTO VL_OUT.
+        vl_number = vl_number - 10.
+      ENDWHILE.
+      if ( ( vl_number / 9 ) >= 1 ).
+        CONCATENATE vl_out 'IX' INTO VL_OUT.
+        vl_number = vl_number - 9.
+      ENDIF.
+      if ( ( vl_number / 5 ) >= 1 ).
+        CONCATENATE vl_out 'V' INTO VL_OUT.
+        vl_number = vl_number - 5.
+      ENDIF.
+      if ( ( vl_number / 4 ) >= 1 ).
+        CONCATENATE vl_out 'IV' INTO VL_OUT.
+        vl_number = vl_number - 4.
+      ENDIF.
+
+      while ( vl_number >= 1 ).
+        CONCATENATE vl_out 'I' INTO VL_OUT.
+        vl_number = vl_number - 1.
+      ENDWHILE.
+
+      WRITE: TEXT-004, VL_OUT. "Numero romano é
+    else.
+      MESSAGE text-003 type 'S' DISPLAY LIKE 'E'. "Não é arábico.
+    ENDIF.
+
+
+  else."romano x arabico
+    vl_number = p_num.
+    IF vl_number(1) na '0123456789' and vl_number ca 'IVXLCDM'.
+      data: vl_i type i,
+            vl_i2 type i,
+            vl_len type i.
+
+      vl_len = strlen( vl_number ).
+
+      DO vl_len TIMES.
+        IF vl_i eq 0.
+          vl_i2 = 0.
+        else.
+          vl_i2 = vl_i - 1.
+        ENDIF.
+
+        if ( vl_number+vl_i(1) eq 'M' and vl_number+vl_i2(1) ne 'C').
+          vl_out = vl_out + 1000.
+        endif.
+        if ( vl_number+vl_i(1) eq 'M' and vl_number+vl_i2(1) eq 'C').
+          vl_out = vl_out + 800.
+        endif.
+        if ( vl_number+vl_i(1) eq 'D' and vl_number+vl_i2(1) NE 'C').
+          vl_out = vl_out + 500.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'D' and vl_number+vl_i2(1) EQ 'C').
+          vl_out = vl_out + 300.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'C' and vl_number+vl_i2(1) NE 'X').
+          vl_out = vl_out + 100.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'C' and vl_number+vl_i2(1) EQ 'X').
+          vl_out = vl_out + 80.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'L' and vl_number+vl_i2(1) NE 'X').
+          vl_out = vl_out + 50.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'L' and vl_number+vl_i2(1) EQ 'X').
+          vl_out = vl_out + 30.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'X' and vl_number+vl_i2(1) NE 'I').
+          vl_out = vl_out + 10.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'X' and vl_number+vl_i2(1) EQ 'I').
+          vl_out = vl_out + 8.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'V' and vl_number+vl_i2(1) NE 'I').
+          vl_out = vl_out + 5.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'V' and vl_number+vl_i2(1) EQ 'I').
+          vl_out = vl_out + 3.
+        ENDIF.
+        if ( vl_number+vl_i(1) eq 'I').
+          vl_out = vl_out + 1.
+        ENDIF.
+
+        vl_i = vl_i + 1.
+      ENDDO.
+
+      WRITE: TEXT-005, VL_OUT. "Numero arabico é:
+    ELSE.
+      MESSAGE text-002 type 'S' DISPLAY LIKE 'E'. "Não é romano.
+    ENDIF.
+  ENDIF.
